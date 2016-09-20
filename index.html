@@ -146,8 +146,7 @@ Jednotlive generace mmcloudu
                 <li>mesos</li>
                 <li>marathon</li>
                 <li>(zookeeper)</li>
-                <li>marathon-lb</li>
-                <li style="color:green">logstash</li>
+                <li style="color:green">marathon-lb</li>
               </ul>
             </p>
           	<aside class="notes">
@@ -165,7 +164,7 @@ Jednotlive generace mmcloudu
               <br />
               <h4>minuses</h4>
               <ul>
-                <li style="color:red">gRPC (haproxy - http2)</li>
+                <li style="color:red">haproxy doesn't support http2</li>
               </ul>
             </ul>
           </section>
@@ -545,7 +544,7 @@ MESOS_CONTAINER_NAME=mesos-838a76f4-75a5-4a23-85e0-93e60ce91d29-S1.b0b610ea-316b
             <script type="text/template">
 ##Real use case - Project phoenix
 
-![project phoenix]()
+![project phoenix](img/phoenix.png)
 
 Note:
             </script>
@@ -557,7 +556,7 @@ Note:
             <script type="text/template">
 ##Application lifecycle
 
-![obrazek jak to delame?]()
+![application lifecycle](img/lifecycle.png)
 
 Note:
             </script>
@@ -750,11 +749,49 @@ maximum heap size
             <script type="text/template">
 ###OOM killer
 
+```
+Sep 20 20:47:42 prg-whale-05 kernel: gen-2 invoked oom-killer: gfp_mask=0xd0, order=0, oom_score_adj=0
+Sep 20 20:47:42 prg-whale-05 kernel: gen-2 cpuset=docker-34afa49c3c47761f37b0474c675d1916ae057beb1f5d6d5c9ba93b109930881b.scope mems_allowed=0-1
+Sep 20 20:47:42 prg-whale-05 kernel: CPU: 20 PID: 133099 Comm: gen-2 Not tainted 3.10.0-327.28.3.el7.x86_64 #1
+Sep 20 20:47:42 prg-whale-05 kernel: Hardware name: Dell Inc. PowerEdge FC430/03X19K, BIOS 1.1.5 05/04/2015
+Sep 20 20:47:42 prg-whale-05 kernel: ffff880fcf3cae00 000000008e546cb8 ffff880a0db2fcd0 ffffffff81636453
+Sep 20 20:47:42 prg-whale-05 kernel: ffff880a0db2fd60 ffffffff816313f3 0000000000000046 ffff880fcd397300
+Sep 20 20:47:42 prg-whale-05 kernel: ffff880a0db2fd38 ffff880a0db2fd30 ffffffff8116cdb6 ffff880133d510e8
+Sep 20 20:47:42 prg-whale-05 kernel: Call Trace:
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff81636453>] dump_stack+0x19/0x1b
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff816313f3>] dump_header+0x8e/0x214
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff8116cdb6>] ? find_lock_task_mm+0x56/0xc0
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff8116d24e>] oom_kill_process+0x24e/0x3b0
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff81088dee>] ? has_capability_noaudit+0x1e/0x30
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff811d4195>] mem_cgroup_oom_synchronize+0x575/0x5a0
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff811d3560>] ? mem_cgroup_charge_common+0xc0/0xc0
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff8116dac4>] pagefault_out_of_memory+0x14/0x90
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff8162f83c>] mm_fault_error+0x68/0x12b
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff816422c2>] __do_page_fault+0x3e2/0x450
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff81642353>] do_page_fault+0x23/0x80
+Sep 20 20:47:42 prg-whale-05 kernel: [<ffffffff8163e648>] page_fault+0x28/0x30
+Sep 20 20:47:42 prg-whale-05 kernel: Task in /system.slice/docker-34afa49c3c47761f37b0474c675d1916ae057beb1f5d6d5c9ba93b109930881b.scope killed as a result of limit of /system.slice/docker-34afa49c3c47761f37b0474c675d1916ae057beb1f5d6d5c9ba93b109930881b.scope
+Sep 20 20:47:42 prg-whale-05 kernel: memory: usage 1048576kB, limit 1048576kB, failcnt 1844368
+Sep 20 20:47:42 prg-whale-05 kernel: memory+swap: usage 1048576kB, limit 2097152kB, failcnt 0
+Sep 20 20:47:42 prg-whale-05 kernel: kmem: usage 0kB, limit 9007199254740991kB, failcnt 0
+Sep 20 20:47:42 prg-whale-05 kernel: Memory cgroup stats for /system.slice/docker-34afa49c3c47761f37b0474c675d1916ae057beb1f5d6d5c9ba93b109930881b.scope: cache:52KB rss:1048524KB rss_huge:0KB mapped_file:0KB swap:0KB inactive_anon:0KB active_anon:1048500KB inactive_file:0KB active_file:0KB unevictable:0KB
+Sep 20 20:47:42 prg-whale-05 kernel: [ pid ]   uid  tgid total_vm      rss nr_ptes swapents oom_score_adj name
+Sep 20 20:47:42 prg-whale-05 kernel: [62341]     0 62341    37198    11563      77        0             0 run_gen.pl
+Sep 20 20:47:42 prg-whale-05 kernel: [133098]     0 133098     1082       25       6        0             0 sh
+Sep 20 20:47:42 prg-whale-05 kernel: [133099]     0 133099   356557   250498     504        0             0 gen-2
+Sep 20 20:47:42 prg-whale-05 kernel: Memory cgroup out of memory: Kill process 133099 (gen-2) score 928 or sacrifice child
+Sep 20 20:47:42 prg-whale-05 kernel: Killed process 133099 (gen-2) total-vm:1426228kB, anon-rss:1001988kB, file-rss:4kB
+```
+
 Note:
             </script>
           </section>
           <section data-markdown>
             <script type="text/template">
+###OOM killer
+`W0920 10:15:19.298264 23211 logging.cpp:91] RAW: Received signal SIGTERM from process 1987 of user 0; exiting`
+
+![completed tasks](img/completed.png)
 
             </script>
           </section>
